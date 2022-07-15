@@ -12,6 +12,7 @@ var playstation = Connect("LongsonPlaystation")
 var extractor = Connect("Extractor")
 var teleporter = Connect("Teleporter")
 var hugin = Connect("Hugin")
+var database = Connect("TestComputer2")
 
 #-----------------------------------------------
 
