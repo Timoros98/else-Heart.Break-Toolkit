@@ -1,0 +1,157 @@
+# Welcome to Timoros Toolkit
+# version: 0.1
+# date: 15/7/2022
+
+var weather = Connect("MeteorologyServer")
+var doors = Connect("SteeringComputer")
+var locator = Connect("MissingPersonFinder")
+var playstation = Connect("LongsonPlaystation")
+var extractor = Connect("Extractor")
+var teleporter = Connect("Teleporter")
+var hugin = Connect("Hugin")
+
+# Unlock()
+# Lock()
+# Locate()
+# SetRain(0)
+# Move()
+# Teleport()
+
+#--------------Main Functions---------------
+
+# Door Unlocker
+void Unlock(string doorName)
+ doors.Unlock(doorName)
+end
+
+# Door Locker
+void Lock(string doorName)
+ doors.Lock(doorName)
+end
+
+# Character Locator
+void Locate(string thing)
+ var position = playstation.GetPosition(thing)
+ extractor.CopyToClipboard(position)
+ Print(position)
+end
+
+# Object Mover
+var Move(string source, string location)
+ playstation.SetPosition(source, location)
+end
+
+# Weather Changer
+void SetRain(number rain)
+ weather.SetRain(rain)
+end
+
+# Player Teleporter
+void Teleport(string room, number x, number y)
+ teleporter.SetWorldPosition(room, x ,y)
+end
+# -------------------------------------------------
+
+#--------------------Other Functions----------------
+
+string Replace(string text, string phrase, string replace)
+ array result = []
+ array matches = FindInString(text, phrase)
+ 
+ 
+ loop c in text
+  Append(result, c)
+ end
+
+ loop match in matches
+  number inc = 0
+  number replaceLength = Count(replace)
+  number matchLength = Count(Range(match[0], match[1]))
+  
+  if matchLength < replaceLength
+   array temp = []
+   loop c in replace
+    Append(temp, c)
+   end
+   loop index in Range(match[1] + 1, Count(result) - 1)
+    Append(temp, result[index])
+   end
+   result = temp
+   
+  else
+   loop index in Range(match[0], match[1])
+    if inc < replaceLength - 1
+     result[index] = replace[inc]
+    else  
+     Remove(result, index)
+    end 
+   end
+  end
+ end
+ 
+ return ArrayToString(result)
+end
+
+string ArrayToString(array source)
+ string result
+ loop c in source
+  result += c
+ end
+ return result
+end
+
+array FindInString(string source, string phrase)
+ array rawSource = []
+ array rawPhrase = []
+ array matches = []
+ array possible = []
+ number currentIndex = 0
+ number phraseLength = -1
+ 
+ loop c in source
+  Append(rawSource, CharToInt(c))
+ end
+ 
+ loop c in phrase
+  Append(rawPhrase, CharToInt(c))
+  phraseLength++
+ end
+ 
+ loop c in rawSource
+  if currentIndex > phraseLength
+   break
+  end
+  number endIndex = currentIndex + phraseLength
+  
+  if c == rawPhrase[0] and rawSource[endIndex] == rawPhrase[phraseLength]
+   Append(possible, [currentIndex, endIndex])
+  end
+  
+  currentIndex++
+ end 
+
+ # Now verify that our matches are true.
+ loop match in possible
+  bool hasErrors = false
+  number inc = 0
+  loop index in Range(match[0], match[1])
+   if rawSource[index] == rawPhrase[inc]
+    inc++
+   else
+    hasErrors = true
+    inc = 0
+   end
+  end
+   
+  if !hasErrors
+   Append(matches, match)
+  end
+ end
+ 
+ return matches
+end
+
+# Character to Integer function
+number CharToInt(string char)
+ return locator.CharToInt(char)
+end
