@@ -2,6 +2,9 @@
 # version: 0.1
 # date: 15/7/2022
 
+
+#------------Variable declaration---------------
+
 var weather = Connect("MeteorologyServer")
 var doors = Connect("SteeringComputer")
 var locator = Connect("MissingPersonFinder")
@@ -10,42 +13,77 @@ var extractor = Connect("Extractor")
 var teleporter = Connect("Teleporter")
 var hugin = Connect("Hugin")
 
+#-----------------------------------------------
+
+
 #---------Functions Info-----------------
 
 # Unlock()
 # Lock()
 # Locate()
-# SetRain(0)
 # Move()
+# SetRain(0)
 # Teleport()
 
 #------------------------------------------
 
 #----------Main Program--------------------
 
+loop
+    ClearText()
+    Print("###############Welcome#################")
+    Print("")
+    Print("[U]nlock/Lock door")
+    Print("[L]ocate items")
+    Print("[M]ove items")
+    Print("[W]eather changer")
+    Print("[T]eleport player")
+    Print("")
+    var selection = Input("> ")
 
-Print("###############Welcome#################")
-Print("")
-Print("[U]nlock/Lock door")
-Print("[L]ocate item/characters etc.")
-Print("[W]eather changer")
-Print("[M]ove items")
-Print("[T]eleport player")
-Print("")
-var selection = Input("> ")
+    if selection == "U" or selection == "u"
+        ClearText()
+        Print("[U]nlock")
+        Print("[L]ock")
+        Print("")
+        var selection = Input("> ")
+        if selection == "U" or selection == "u" # Unlock command
+            Print("Door Name:")
+            var doorName = Input("> ")
+            Unlock(doorName)
+        else if selection == "L" or selection == "l" # Lock command
+            Print("Door Name:")
+            var doorName = Input("> ")
+            Lock(doorName)
+        else
+            Print("Wrong Selection!")
+            return
+        end
+    else if selection == "L" or selection == "l" # Locate command
+        Print("Item name:")
+        var thing = Input("> ")
+        Locate(thing)
+    else if selection == "M" or selection == "m" # Move command
+        Print("Please select the source and destination of the item:")
+        var source = Input("Source > ")
+        var location = Input("Destination > ")
+        Move(source,location)
+    else if selection == "W" or selection == "w" # Weather command
+        Print("Weather(Number: 1-4)")
+        var rain = Input("> ")
+    else if selection == "T" or selection == "t" # Teleport command
+        Print("A more robust Teleporter is coming soon!")
+        Print("")
+        Print("Room name, X, Y:")
+        var room = Input("Room > ")
+        var x = Input("X > ")
+        var y = Input("Y > ")
+        Teleport(room,x,y)
+    else
+        Print("Wrong Selection!")
+    end
+end
 
-if selection == "U" or selection == "u"
-    # Code
-else if selection == "L" or selection == "l"
-    # Code
-else if selection == "W" or selection == "w"
-    # Code
-else if selection == "M" or selection == "m"
-    # Code
-else if selection == "T" or selection == "t"
-    # Code
-else
-    Print("Wrong Selection!")
 
 #-------------------------------------------
 
@@ -54,137 +92,37 @@ else
 
 # Door Unlocker
 void Unlock(string doorName)
- doors.Unlock(doorName)
+    Print("Unlocking...")
+    Sleep(2)
+    doors.Unlock(doorName)
 end
 
 # Door Locker
 void Lock(string doorName)
- doors.Lock(doorName)
+    Print("Locking...")
+    Sleep(2)
+    doors.Lock(doorName)
 end
 
-# Character Locator
+# Item Locator
 void Locate(string thing)
- var position = playstation.GetPosition(thing)
- extractor.CopyToClipboard(position)
- Print(position)
+    var position = playstation.GetPosition(thing)
+    extractor.CopyToClipboard(position)
+    Print(position)
 end
 
 # Object Mover
 var Move(string source, string location)
- playstation.SetPosition(source, location)
+    playstation.SetPosition(source, location)
 end
 
 # Weather Changer
 void SetRain(number rain)
- weather.SetRain(rain)
+    weather.SetRain(rain)
 end
 
 # Player Teleporter
 void Teleport(string room, number x, number y)
- teleporter.SetWorldPosition(room, x ,y)
+    teleporter.SetWorldPosition(room, x ,y)
 end
 # -------------------------------------------------
-
-#--------------------Other Functions----------------
-
-string Replace(string text, string phrase, string replace)
- array result = []
- array matches = FindInString(text, phrase)
- 
- 
- loop c in text
-  Append(result, c)
- end
-
- loop match in matches
-  number inc = 0
-  number replaceLength = Count(replace)
-  number matchLength = Count(Range(match[0], match[1]))
-  
-  if matchLength < replaceLength
-   array temp = []
-   loop c in replace
-    Append(temp, c)
-   end
-   loop index in Range(match[1] + 1, Count(result) - 1)
-    Append(temp, result[index])
-   end
-   result = temp
-   
-  else
-   loop index in Range(match[0], match[1])
-    if inc < replaceLength - 1
-     result[index] = replace[inc]
-    else  
-     Remove(result, index)
-    end 
-   end
-  end
- end
- 
- return ArrayToString(result)
-end
-
-string ArrayToString(array source)
- string result
- loop c in source
-  result += c
- end
- return result
-end
-
-array FindInString(string source, string phrase)
- array rawSource = []
- array rawPhrase = []
- array matches = []
- array possible = []
- number currentIndex = 0
- number phraseLength = -1
- 
- loop c in source
-  Append(rawSource, CharToInt(c))
- end
- 
- loop c in phrase
-  Append(rawPhrase, CharToInt(c))
-  phraseLength++
- end
- 
- loop c in rawSource
-  if currentIndex > phraseLength
-   break
-  end
-  number endIndex = currentIndex + phraseLength
-  
-  if c == rawPhrase[0] and rawSource[endIndex] == rawPhrase[phraseLength]
-   Append(possible, [currentIndex, endIndex])
-  end
-  
-  currentIndex++
- end 
-
- # Now verify that our matches are true.
- loop match in possible
-  bool hasErrors = false
-  number inc = 0
-  loop index in Range(match[0], match[1])
-   if rawSource[index] == rawPhrase[inc]
-    inc++
-   else
-    hasErrors = true
-    inc = 0
-   end
-  end
-   
-  if !hasErrors
-   Append(matches, match)
-  end
- end
- 
- return matches
-end
-
-# Character to Integer function
-number CharToInt(string char)
- return locator.CharToInt(char)
-end
