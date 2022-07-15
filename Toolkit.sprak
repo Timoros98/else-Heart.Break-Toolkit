@@ -1,5 +1,5 @@
 # Welcome to Timoros Toolkit
-# version: 0.2
+# version: 0.3
 # date: 16/7/2022
 
 
@@ -13,6 +13,8 @@ var extractor = Connect("Extractor")
 var teleporter = Connect("Teleporter")
 var hugin = Connect("Hugin")
 var database = Connect("TestComputer2")
+var mainframe = Connect("MainFrame")
+array Rooms = LoadRooms()
 
 #-----------------------------------------------
 
@@ -31,30 +33,32 @@ var database = Connect("TestComputer2")
 #----------Main Program--------------------
 
 loop
+    Rooms = LoadRooms()
+
     ClearText()
-    Print("###############Welcome#################")
+    Print("######################Timoros Toolkit 0.3#####################")
     Print("")
-    Print("[U]nlock/Lock door")
-    Print("[L]ocate items")
-    Print("[M]ove items")
-    Print("[W]eather changer")
-    Print("[T]eleport player")
+    Print("- [U]nlock/Lock door")
+    Print("- [L]ocate items")
+    Print("- [W]eather changer")
+    Print("- [T]eleport player")
+    Print("- [Q]uit program")
     Print("")
-    var selection = Input("> ")
+    string selection = Input("> ")
 
     if selection == "U" or selection == "u"
         ClearText()
         Print("[U]nlock")
         Print("[L]ock")
         Print("")
-        var selection = Input("> ")
-        if selection == "U" or selection == "u" # Unlock command
+        string select = Input("> ")
+        if select == "U" or select == "u" # Unlock command
             Print("Door Name:")
-            var doorName = Input("> ")
+            string doorName = Input("> ")
             Unlock(doorName)
-        else if selection == "L" or selection == "l" # Lock command
+        else if select == "L" or select == "l" # Lock command
             Print("Door Name:")
-            var doorName = Input("> ")
+            string doorName = Input("> ")
             Lock(doorName)
         else
             Print("Wrong Selection!")
@@ -62,24 +66,16 @@ loop
         end
     else if selection == "L" or selection == "l" # Locate command
         Print("Item name:")
-        var thing = Input("> ")
+        string thing = Input("> ")
         Locate(thing)
-    else if selection == "M" or selection == "m" # Move command
-        Print("Please select the source and destination of the item:")
-        var source = Input("Source > ")
-        var location = Input("Destination > ")
-        Move(source,location)
     else if selection == "W" or selection == "w" # Weather command
-        Print("Weather(Number: 1-4)")
-        var rain = Input("> ")
+        Print("Weather(Number: 0-100)")
+        number rain = Input("> ")
+        Weather(rain)
     else if selection == "T" or selection == "t" # Teleport command
-        Print("A more robust Teleporter is coming soon!")
-        Print("")
-        Print("Room name, X, Y:")
-        var room = Input("Room > ")
-        var x = Input("X > ")
-        var y = Input("Y > ")
-        Teleport(room,x,y)
+        TimorosTeleport()
+    else if selection == "Q" or selection == "q" # Quit command
+        Finish()
     else
         Print("Wrong Selection!")
     end
@@ -95,35 +91,289 @@ end
 void Unlock(string doorName)
     Print("Unlocking...")
     Sleep(2)
-    doors.Unlock(doorName)
+    var position = playstation.GetPosition(doorName)
+    if position == "Thing not found"
+        Print(doorName + " Was not found!")
+        Sleep(3)
+    else
+        doors.Unlock(doorName)
+        Print(doorName + " Unlocked!")
+        Sleep(3)
+    end
 end
 
 # Door Locker
 void Lock(string doorName)
     Print("Locking...")
     Sleep(2)
-    doors.Lock(doorName)
+    var position = playstation.GetPosition(doorName)
+    if position == "Thing not found"
+        Print(doorName + " Was not found!")
+        Sleep(3)
+    else
+        doors.Lock(doorName)
+        Print(doorName + " Locked!")
+        Sleep(3)
+    end
 end
 
 # Item Locator
 void Locate(string thing)
-    var position = playstation.GetPosition(thing)
-    extractor.CopyToClipboard(position)
-    Print(position)
-end
-
-# Object Mover
-var Move(string source, string location)
-    playstation.SetPosition(source, location)
+    Print("Locating...")
+    Sleep(2)
+    if thing == ""
+        
+    else
+        var position = playstation.GetPosition(thing)
+        extractor.CopyToClipboard(position)
+        if position == "Thing not found"
+            Print(position)
+            Sleep(3)
+        else
+            Print(position)
+            Print("Location copied to clipboard!")
+            Sleep(3)
+        end
+    end
 end
 
 # Weather Changer
-void SetRain(number rain)
+void Weather(number rain)
+    Print("Changing weather...")
+    Sleep(2)
     weather.SetRain(rain)
+    Print("Weather set to " + rain)
+    Sleep(3)
 end
 
 # Player Teleporter
-void Teleport(string room, number x, number y)
-    teleporter.SetWorldPosition(room, x ,y)
+void TimorosTeleport()
+    Print("Name of the object you want to tp to:")
+    var name = Input("> ")
+    Print("Teleporting...")
+    Sleep(2)
+    var position = playstation.GetPosition(name)
+    if position == "Thing not found"
+        Print(name + " does not exist")
+        Sleep(3)
+    else
+        array item = ParseGetPosition(mainframe.GetPosition(name))
+        Teleport(item[0], name)
+    end
+end
+
+# Clean up
+void Finish()
+    ClearText()
+    var items = playstation.GetThingsInRoom("Sebastian_inventory")
+    playstation.SetPosition("TestComputer1", items[0])
+    Quit()
+end
+
+# Gets a string between the first instance of start and end (exclusive)
+string GetSubString(string input, string start, string finish)
+    bool iteratingResult = false
+    string result = ""
+
+    loop char in input
+        if iteratingResult
+            if char == finish
+                return result
+            end
+
+            result += char
+        end
+
+        if char == start
+            iteratingResult = true
+        end
+    end
+end
+
+# Converts a string to an int
+number StringToInt(string input)
+    bool negative = false
+    number result = 0
+    number current = 0
+
+    # This keeps track of what multiple of 10 we're at
+    number multiple = Count(input) - 1
+
+    loop i in input
+        if i == "-"
+            negative = true
+            multiple -= 1
+        else
+            current = CharToInt(i) + 49
+            if multiple != 0
+                current *= Power(10, multiple)
+            end
+            result += current
+            multiple -= 1
+        end
+    end
+
+    if negative
+        result *= -1
+    end
+
+    return result
+end
+
+# Raise a number to a power
+# Taken from https://en.wikipedia.org/wiki/Exponentiation_by_squaring#Basic_method
+number Power(number x, number n)
+    if n < 0
+        return Power(1 / x, n * -1)
+    else if n == 0
+        return 1
+    else if n == 1
+        return x
+    else if Mod(n, 2) == 0
+        return Power(x * x, n / 2)
+    else
+        return x * Power(x * x, (n - 1) / 2)
+    end
+end
+
+# Setup teleporter to jump to the given room
+void Teleport(string realName, string item)
+    if realName == ""
+        return
+    end
+
+    string moverName = "Factory_ServerRoom_LargeRecorder_LargeRecorder_1"
+    var Mover = Connect(moverName)
+
+    array currentRoom = GetCurrentRoom()
+
+    array items = playstation.GetThingsInRoom(currentRoom[0])
+    playstation.SetPosition(moverName, items[0])
+
+    if item == ""
+        item = GetClosestItem(realName)
+    end
+    Mover.MovePerson("Sebastian", item)
+
+    items = playstation.GetThingsInRoom("Testing")
+    playstation.SetPosition(moverName, items[0])
+
+    Finish()
+end
+
+# Get the item closest to the spawn coords
+string GetClosestItem(string realName)
+    Print("Finding closest item to spawn (this could take a moment)")
+    array room = Rooms[realName]
+    number closestDistance = 9999
+    string closestItem = ""
+
+    array items = playstation.GetThingsInRoom(realName)
+    
+    number i = 0
+    
+    loop item in items
+        i += 1
+        PrintS(".")
+        array itemArray = ParseGetPosition(playstation.GetPosition(item))
+
+        number xDifference = AbsoluteValue(room[2] - itemArray[2])
+        number yDifference = AbsoluteValue(room[3] - itemArray[3])
+
+        number totalDistance = xDifference + yDifference
+
+        if totalDistance < closestDistance
+            closestDistance = totalDistance
+            closestItem = item
+        end
+        if i > 60
+            Print(".")
+            i = 0
+        end
+    end
+    
+    return closestItem
+end
+
+number AbsoluteValue(number input)
+    if input < 0
+        return input * -1
+    end
+
+    return input
+end
+# -------------------------------------------------
+
+# ---------------------Arrays----------------------
+array ParseGetPosition(string input)
+    array room = []
+
+    room[0] = GetSubString(input, " ", ",")
+
+    # This is where the prettyName will go
+    room[1] = ""
+
+    array coords = ParseCoords(GetSubString(input, "(", ")"))
+
+    room[2] = coords[0]
+    room[3] = coords[1]
+
+    return room
+end
+
+array ParseCoords(string input)
+    array coords = SplitString(input, ",")
+
+    coords[0] = StringToInt(coords[0])
+    coords[1] = StringToInt(coords[1])
+
+    return coords
+end
+
+array SplitString(string input, string separator)
+    array result = []
+    number index = 0
+    result[0] = ""
+
+    loop char in input
+        if char == separator
+            index += 1
+            result[index] = ""
+        end
+
+        if char != separator
+            # For some reason "result[index] += char" didn't work
+            string temp = result[index]
+            temp += char
+            result[index] = temp
+        end
+    end
+
+    return result
+end
+
+array GetCurrentRoom()
+     string room = playstation.GetPosition("Sebastian")
+     return ParseGetPosition(room)
+end
+
+array LoadRooms()
+    array allKeys = database.GetMemories()
+    array realNames = []
+    array rooms = []
+    
+    loop key in allKeys
+        if key[0] != IntToChar(64) and key[0] != IntToChar(65)
+            Append(realNames, key)
+        end
+    end
+    
+    loop realName in realNames
+        string x = IntToChar(64) + realName
+        string y = IntToChar(65) + realName
+        rooms[realName] = [realName, database.LoadMemory(realName), database.LoadMemory(x), database.LoadMemory(y)]
+    end
+
+    return rooms
 end
 # -------------------------------------------------
