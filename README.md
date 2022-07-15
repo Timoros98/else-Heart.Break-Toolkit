@@ -21,3 +21,7 @@
 ##### 2. Copy and paste the Setup.sprak script in the fusebox and run the script
 ##### 3. You will see that now you have a new item in your inventory called "computer"
 ##### 4. Equip the computer, place it down and copy and paste the Toolkit.sprak script in it and you are ready to go
+
+
+###### Note: Most of the code I borrowed from this steam post: https://steamcommunity.com/app/400110/discussions/0/1696048245844467007/
+###### Credits to Tsalikon for his great code from 2018
