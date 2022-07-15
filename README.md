@@ -10,8 +10,6 @@
 ###### 4. Teleport to a specific item, door, character etc.
 
 
-#### Am considering this the main fetures for now and keep building on them and make them more advanced
-
 ## Future considerations
 ##### 1. Be able to save room,doors,items names for easier access after the initial setup
 ##### 2. Any other ideas that might come to my mind and I will try to implement them or maybe automate some of the existing ones
