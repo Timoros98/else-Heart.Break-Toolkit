@@ -1,5 +1,3 @@
-<p align="center">
-    # else Heart.Break() Toolkit
-</p>
+# else Heart.Break() Toolkit
 
-### The all in one Toolkit for the game "else Heart.Break()"
+###### The all in one Toolkit for the game "else Heart.Break()"
