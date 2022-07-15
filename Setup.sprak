@@ -1,5 +1,5 @@
 # Welcome to Timoros Setup
-# version: 0.2
+# version: 0.3
 # date: 16/7/2022
 
 #------------Variable declaration---------------
@@ -12,5 +12,5 @@ var database = Connect("TestComputer2")
 
 playstation.SetPosition("TestComputer1", items[0]) # Transfer computer to players inventory
 
-DB.ClearMemories() # Clear the memory of the database computer (For future saving of names)
+database.ClearMemories() # Clear the memory of the database computer (For future saving of names)
                    # As this is the setup and you will run it only once it's better to clear the memory of any unwanted saves
