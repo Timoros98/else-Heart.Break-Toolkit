@@ -10,12 +10,45 @@ var extractor = Connect("Extractor")
 var teleporter = Connect("Teleporter")
 var hugin = Connect("Hugin")
 
+#---------Functions Info-----------------
+
 # Unlock()
 # Lock()
 # Locate()
 # SetRain(0)
 # Move()
 # Teleport()
+
+#------------------------------------------
+
+#----------Main Program--------------------
+
+
+Print("###############Welcome#################")
+Print("")
+Print("[U]nlock/Lock door")
+Print("[L]ocate item/characters etc.")
+Print("[W]eather changer")
+Print("[M]ove items")
+Print("[T]eleport player")
+Print("")
+var selection = Input("> ")
+
+if selection == "U" or selection == "u"
+    # Code
+else if selection == "L" or selection == "l"
+    # Code
+else if selection == "W" or selection == "w"
+    # Code
+else if selection == "M" or selection == "m"
+    # Code
+else if selection == "T" or selection == "t"
+    # Code
+else
+    Print("Wrong Selection!")
+
+#-------------------------------------------
+
 
 #--------------Main Functions---------------
 
