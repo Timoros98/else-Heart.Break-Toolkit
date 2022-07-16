@@ -10,12 +10,6 @@
 ###### 4. Teleport to a specific item, door, character etc.
 
 
-## Future considerations
-##### 1. Be able to save room,doors,items names for easier access after the initial setup
-##### 2. Any other ideas that might come to my mind and I will try to implement them or maybe automate some of the existing ones
-
-
-
 ## How-To
 ##### 1. Find an object that can run code (Preferably a fusebox)
 ##### 2. Copy and paste the Setup.sprak script in the fusebox and run the script
