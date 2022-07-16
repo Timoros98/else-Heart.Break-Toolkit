@@ -8,6 +8,9 @@
 ###### 2. Locate specific items,doors,character etc.
 ###### 3. Weather change ~ Game uses numbers from 0-100(0 = clear day, 100 = Stormy day)
 ###### 4. Teleport to a specific item, door, character etc.
+###### 5. You can save a room for easier access
+###### 6. You can edit the saved rooms (Delete / Rename)
+###### 7. Easy database reset (if you think you messed up the database)
 
 
 ## How-To
