@@ -1,5 +1,5 @@
 # Welcome to Timoros Toolkit
-# version: 0.3
+# version: 0.5
 # date: 16/7/2022
 
 
@@ -15,20 +15,9 @@ var hugin = Connect("Hugin")
 var database = Connect("TestComputer2")
 var mainframe = Connect("MainFrame")
 array Rooms = LoadRooms()
+array roomNames = []
 
 #-----------------------------------------------
-
-
-#---------Functions Callers-----------------
-
-# Unlock()
-# Lock()
-# Locate()
-# Move()
-# SetRain(0)
-# Teleport()
-
-#------------------------------------------
 
 #----------Main Program--------------------
 
@@ -42,15 +31,16 @@ loop
     Print("- [L]ocate items")
     Print("- [W]eather changer")
     Print("- [T]eleport player")
+    Print("- [S]ave room")
+    Print("- [E]dit room list")
+    Print("- [C]lear database(Caution: this will delete the saved rooms)")
     Print("- [Q]uit program")
     Print("")
     string selection = Input("> ")
 
     if selection == "U" or selection == "u"
         ClearText()
-        Print("[U]nlock")
-        Print("[L]ock")
-        Print("")
+        Print("Do you want to [U]nlock or [L]ock a door?")
         string select = Input("> ")
         if select == "U" or select == "u" # Unlock command
             Print("Door Name:")
@@ -65,15 +55,55 @@ loop
             return
         end
     else if selection == "L" or selection == "l" # Locate command
+        ClearText()
         Print("Item name:")
         string thing = Input("> ")
         Locate(thing)
     else if selection == "W" or selection == "w" # Weather command
+        ClearText()
         Print("Weather(Number: 0-100)")
         number rain = Input("> ")
         Weather(rain)
     else if selection == "T" or selection == "t" # Teleport command
         TimorosTeleport()
+    else if selection == "S" or selection == "s" # Save room command
+        ClearText()
+        Print("Do you want to add the [C]urrent room or [M]anually input it?")
+        var option = Input("> ")
+        if option == "C" or option == "c"
+            array room = GetCurrentRoom()
+            AddRoom(room)
+        else if option == "M" or option == "m"
+            Print("Please enter the name of the room you would like to add")
+            string manualName = Input("> ")
+            if !VerifyThingExists(manualName, "room")
+                Print("That room does not exist")
+                Sleep(3)
+            else
+                AddManualRoom(manualName)
+            end
+        end
+    else if selection == "E" or selection == "e"
+        if Count(Rooms) == 0
+            Print("No rooms in database")
+            Sleep(3)
+        else
+            string realName = ShowList("edit")
+            if realName != ""
+                Print("Would you like to [D]elete or [C]hange the name?")
+                selection = Input("> ")
+                if selection == "D" or selection == "d"
+                    DeleteRoom(realName)
+                else if selection == "C" or selection == "c"
+                    RenameRoom(realName)
+                else
+                    Print("Invalid Selection")
+                    Sleep(3)
+                end
+            end
+        end
+    else if selection == "C" or selection == "c" # Database reset command
+        databaseReset()
     else if selection == "Q" or selection == "q" # Quit command
         Finish()
     else
@@ -148,17 +178,117 @@ end
 
 # Player Teleporter
 void TimorosTeleport()
-    Print("Name of the object you want to tp to:")
-    var name = Input("> ")
-    Print("Teleporting...")
-    Sleep(2)
-    var position = playstation.GetPosition(name)
-    if position == "Thing not found"
-        Print(name + " does not exist")
+    ClearText()
+    Print("- [R]oom list")
+    Print("- [M]anual input")
+    var optionTP = Input("> ")
+    if optionTP == "R" or optionTP == "r"
+        if Count(Rooms) == 0
+            Print("No rooms in database")
+            Sleep(3)
+        else
+            string realName = ShowList("teleport")
+            RoomTeleport(realName, "")
+        end
+    else if optionTP == "M" or optionTP == "m"
+        Print("Name of the item/room you want to teleport to:")
+        var name = Input("> ")
+        var position = playstation.GetPosition(name)
+        if position == "Thing not found"
+            Print(name + " does not exist")
+            Sleep(3)
+        else
+            array item = ParseGetPosition(mainframe.GetPosition(name))
+            RoomTeleport(item[0], name)
+        end
+    end
+end
+
+# Saved Room Teleporter
+void RoomTeleport(string realName, string item)
+    if realName == ""
+        return
+    end
+
+    string moverName = "Factory_ServerRoom_LargeRecorder_LargeRecorder_1"
+    var Mover = Connect(moverName)
+
+    array currentRoom = GetCurrentRoom()
+
+    array items = playstation.GetThingsInRoom(currentRoom[0])
+    playstation.SetPosition(moverName, items[0])
+
+    if item == ""
+        item = GetClosestItem(realName)
+    end
+    Mover.MovePerson("Sebastian", item)
+
+    items = playstation.GetThingsInRoom("Testing")
+    playstation.SetPosition(moverName, items[0])
+
+    Finish()
+end
+
+# Add a room to the database
+void AddRoom(array room)
+    string realName = room[0]
+
+    if HasIndex(Rooms, realName)
+        Print("This room is already in the database")
         Sleep(3)
-    else
-        array item = ParseGetPosition(mainframe.GetPosition(name))
-        Teleport(item[0], name)
+        return
+    end
+
+    Print("Please enter a name for " + realName)
+    string prettyName = Input("> ")
+
+    room[1] = prettyName
+
+    SaveRoom(room)
+    Print(prettyName + " was saved!")
+    Sleep(3)
+end
+
+# Add a manually-entered room to the list of rooms
+void AddManualRoom(string manualName)
+    array items = playstation.GetThingsInRoom(manualName)
+
+    array room = ParseGetPosition(playstation.GetPosition(items[0]))
+
+    AddRoom(room)
+end
+
+# Save the given room to the database
+void SaveRoom(array room)
+    string realName = room[0]
+    string prettyName = room[1]
+
+    database.SaveMemory(realName, prettyName)
+    database.SaveMemory(IntToChar(64) + realName, room[2])
+    database.SaveMemory(IntToChar(65) + realName, room[3])
+end
+
+# Change the prettyName of a room in the database
+void RenameRoom(string realName)
+    Print("Please enter a new name for " + realName)
+    var prettyName = Input("> ")
+
+    database.EraseMemory(realName)
+
+    database.SaveMemory(realName, prettyName)
+end
+
+# Delete a room from the database
+void DeleteRoom(string realName)
+    array room = Rooms[realName]
+    Print("Are you sure you want to delete '" + room[1] + "' from the database? [y/n]")
+    string answer = Input("> ")
+    if answer == "y" or answer == "Y"
+        database.EraseMemory(realName)
+        database.EraseMemory(IntToChar(64) + realName)
+        database.EraseMemory(IntToChar(65) + realName)
+        Print("Deletion was successfull!")
+        Sleep(3)
     end
 end
 
@@ -168,6 +298,16 @@ void Finish()
     var items = playstation.GetThingsInRoom("Sebastian_inventory")
     playstation.SetPosition("TestComputer1", items[0])
     Quit()
+end
+
+# Database reset
+void databaseReset()
+    ClearText()
+    Print("Clearing database...")
+    Sleep(3)
+    database.ClearMemories()
+    Print("Database Cleared...")
+    Sleep(3)
 end
 
 # Gets a string between the first instance of start and end (exclusive)
@@ -196,7 +336,7 @@ number StringToInt(string input)
     number result = 0
     number current = 0
 
-    # This keeps track of what multiple of 10 we're at
+    # This keeplaystation track of what multiple of 10 we're at
     number multiple = Count(input) - 1
 
     loop i in input
@@ -221,7 +361,7 @@ number StringToInt(string input)
 end
 
 # Raise a number to a power
-# Taken from https://en.wikipedia.org/wiki/Exponentiation_by_squaring#Basic_method
+# Taken from httplaystation://en.wikipedia.org/wiki/Exponentiation_by_squaring#Basic_method
 number Power(number x, number n)
     if n < 0
         return Power(1 / x, n * -1)
@@ -263,23 +403,26 @@ end
 
 # Get the item closest to the spawn coords
 string GetClosestItem(string realName)
-    Print("Finding closest item to spawn (this could take a moment)")
     array room = Rooms[realName]
+    Print("Telepoting to " + room[1] + " (Please wait!)")
     number closestDistance = 9999
     string closestItem = ""
 
     array items = playstation.GetThingsInRoom(realName)
-    
+    number itemNum = Count(items)
+    Print("Items Found: " + itemNum)
+    number itemPercentage = 0
     number i = 0
+    number currentNum = 0
     
     loop item in items
         i += 1
-        PrintS(".")
+        currentNum += 1
         array itemArray = ParseGetPosition(playstation.GetPosition(item))
-
+        percent(itemPercentage,currentNum,itemNum)
         number xDifference = AbsoluteValue(room[2] - itemArray[2])
         number yDifference = AbsoluteValue(room[3] - itemArray[3])
-
+        Print(" (" + item + ")")
         number totalDistance = xDifference + yDifference
 
         if totalDistance < closestDistance
@@ -291,6 +434,9 @@ string GetClosestItem(string realName)
             i = 0
         end
     end
+    Print("")
+    Print("Closest item found!")
+    Sleep(3)
     
     return closestItem
 end
@@ -301,6 +447,69 @@ number AbsoluteValue(number input)
     end
 
     return input
+end
+
+void percent(number percentage, number current, number actualNum)
+    ClearText()
+    percentage = current / actualNum
+    PrintS("Checking items: " + Round(percentage * 100) + "%")
+end
+
+# Check if a manually entered thing is real
+bool VerifyThingExists(string thing, string type)
+    array things = []
+	
+	if type == "room"
+		things = playstation.GetAllRooms()
+	else
+		things = playstation.GetPeople()
+	end
+
+    loop item in things
+        if thing == item
+            return true
+        end
+    end
+
+    return false
+end
+
+# Show the list of rooms
+string ShowList(string type)
+    ClearText()
+    roomNames = []
+    string prompt = ""
+    if type == "edit"
+        prompt = "Please select a room to edit"
+    else
+        prompt = "Please select a room to teleport to"
+    end
+    var height = (Height() / 8) - 4
+    var total = Count(Rooms)
+    string result = ""
+
+    Print(prompt)
+
+    number i = 0
+
+    loop room in Rooms
+        Append(roomNames, room[0])
+        Print("[" + (i + 1) + "] " + room[1])
+        i++
+    end
+
+    Sleep(0.1)
+    number key = Input("> ")
+
+    if key > 0 and key <= total
+        string roomName = roomNames[key - 1]
+        array room = Rooms[roomName]
+        return room[0]
+    else
+        Print("Invalid Selection")
+        Sleep(3)
+        return ""
+    end
 end
 # -------------------------------------------------
 
