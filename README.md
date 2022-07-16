@@ -21,6 +21,7 @@
 ##### 2. Copy and paste the Setup.sprak script in the fusebox and run the script
 ##### 3. You will see that now you have a new item in your inventory called "computer"
 ##### 4. Equip the computer, place it down and copy and paste the Toolkit.sprak script in it and you are ready to go
+##### 5. Optional: Use a hacked screwdriver (SetMhz(500)) and use it on the computer to make it faster
 
 
 ###### Note: Most of the code I borrowed from this steam post: https://steamcommunity.com/app/400110/discussions/0/1696048245844467007/
