@@ -55,8 +55,11 @@ loop
         ClearText()
         Print("######Weather Changer######")
         Print(" ")
-        Print("Weather(Number: 0-100)")
-        number rain = Input("> ")
+        Print("- [1] Sunny")
+        Print("- [2] Drizzle")
+        Print("- [3] Rain")
+        Print("- [4] Storm")
+        var rain = Input("> ")
         Weather(rain)
     else if selection == "T" or selection == "t" # Teleport command
         TimorosTeleport()
@@ -172,12 +175,36 @@ void Locate(string thing)
 end
 
 # Weather Changer
-void Weather(number rain)
-    Print("Changing weather...")
-    Sleep(2)
-    weather.SetRain(rain)
-    Print("Weather set to " + rain)
-    Sleep(3)
+void Weather(rain)
+    if rain == 1
+        Print("Changing weather...")
+        Sleep(2)
+        weather.SetRain(0)
+        Print("Weather set to Sunny")
+        Sleep(3)
+    else if rain == 2
+        Print("Changing weather...")
+        Sleep(2)
+        weather.SetRain(25)
+        Print("Weather set to Drizzle")
+        Sleep(3)
+    else if rain == 3
+        Print("Changing weather...")
+        Sleep(2)
+        weather.SetRain(100)
+        Print("Weather set to Rain")
+        Sleep(3)
+    else if rain == 4
+        Print("Changing weather...")
+        Sleep(2)
+        weather.SetRain(200)
+        Print("Weather set to Storm")
+        Sleep(3)
+    else
+        Print("Invalid Selection")
+        Sleep(3)
+        return
+    end
 end
 
 # Player Teleporter
@@ -538,12 +565,17 @@ void moneycheat()
     Print("######Bank Exploit Tool######")
     Print(" ")
     Print("Money you want to add to your account")
-    number amount = Input("> ")
-    balance.ChangeBalance("Sebastian", amount)
-    ClearText()
-    Print("Balanced updated successfully!")
-    Print("Your new balance is: " + balance.GetBalanceForPerson("Sebastian"))
-    Sleep(3)
+    var amount = Input("> ")
+    if amount > "-10000000" and amount < "10000000"
+        balance.ChangeBalance("Sebastian", amount)
+        ClearText()
+        Print("Balanced updated successfully!")
+        Print("Your new balance is: " + balance.GetBalanceForPerson("Sebastian"))
+        Sleep(3)
+    else
+        Print("Invalid Amount")
+        Sleep(3)
+    end
 end
 
 void playerstats()
