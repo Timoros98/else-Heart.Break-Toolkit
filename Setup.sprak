@@ -14,3 +14,11 @@ playstation.SetPosition("TestComputer1", items[0]) # Transfer computer to player
 
 database.ClearMemories() # Clear the memory of the database computer (For future saving of names)
                    # As this is the setup and you will run it only once it's better to clear the memory of any unwanted saves
+
+
+Say("Find a screwdriver")
+Sleep(3)
+Say("SetMhz(500)")
+Sleep(3)
+Say("Use it on the computer")
+Sleep(3)
