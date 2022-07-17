@@ -176,25 +176,25 @@ end
 
 # Weather Changer
 void Weather(rain)
-    if rain == 1
+    if rain == "1"
         Print("Changing weather...")
         Sleep(2)
         weather.SetRain(0)
         Print("Weather set to Sunny")
         Sleep(3)
-    else if rain == 2
+    else if rain == "2"
         Print("Changing weather...")
         Sleep(2)
         weather.SetRain(25)
         Print("Weather set to Drizzle")
         Sleep(3)
-    else if rain == 3
+    else if rain == "3"
         Print("Changing weather...")
         Sleep(2)
         weather.SetRain(100)
         Print("Weather set to Rain")
         Sleep(3)
-    else if rain == 4
+    else if rain == "4"
         Print("Changing weather...")
         Sleep(2)
         weather.SetRain(200)
