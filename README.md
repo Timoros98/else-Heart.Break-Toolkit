@@ -10,7 +10,8 @@
 ###### 4. Teleport to a specific item, door, character etc.
 ###### 5. You can save a room for easier access
 ###### 6. You can edit the saved rooms (Delete / Rename)
-###### 7. Easy database reset (if you think you messed up the database)
+###### 7. Add money to your account
+###### 8. See and modify player stats
 
 #
 
@@ -22,5 +23,5 @@
 ##### 5. Optional: Use a hacked screwdriver (SetMhz(500)) and use it on the computer to make it faster
 
 
-###### Note: Most of the code I borrowed from this steam post: https://steamcommunity.com/app/400110/discussions/0/1696048245844467007/
+###### Note: Some of the code I borrowed from this steam post: https://steamcommunity.com/app/400110/discussions/0/1696048245844467007/
 ###### Credits to Tsalikon for his great code from 2018
