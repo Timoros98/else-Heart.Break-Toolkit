@@ -25,7 +25,7 @@ array roomNames = []
 
 loop
     Rooms = LoadRooms()
-
+    
     ClearText()
     Print("######################Timoros Toolkit 0.3#####################")
     Print(" ")
