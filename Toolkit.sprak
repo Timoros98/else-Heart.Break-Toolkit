@@ -1,5 +1,5 @@
 # Welcome to Timoros Toolkit
-# version: 0.5
+# version: 0.7
 # date: 16/7/2022
 
 
@@ -14,6 +14,8 @@ var teleporter = Connect("Teleporter")
 var hugin = Connect("Hugin")
 var database = Connect("TestComputer2")
 var mainframe = Connect("MainFrame")
+var balance = Connect("FinanceComputer")
+var heart = Connect("Heart")
 array Rooms = LoadRooms()
 array roomNames = []
 
@@ -26,41 +28,33 @@ loop
 
     ClearText()
     Print("######################Timoros Toolkit 0.3#####################")
-    Print("")
+    Print(" ")
     Print("- [U]nlock/Lock door")
     Print("- [L]ocate items")
     Print("- [W]eather changer")
     Print("- [T]eleport player")
     Print("- [S]ave room")
     Print("- [E]dit room list")
-    Print("- [C]lear database(Caution: this will delete the saved rooms)")
+    Print("- [C]lear database")
+    Print("- [M]oney hack")
+    Print("- [P]layer stats")
     Print("- [Q]uit program")
-    Print("")
+    Print(" ")
     string selection = Input("> ")
 
     if selection == "U" or selection == "u"
-        ClearText()
-        Print("Do you want to [U]nlock or [L]ock a door?")
-        string select = Input("> ")
-        if select == "U" or select == "u" # Unlock command
-            Print("Door Name:")
-            string doorName = Input("> ")
-            Unlock(doorName)
-        else if select == "L" or select == "l" # Lock command
-            Print("Door Name:")
-            string doorName = Input("> ")
-            Lock(doorName)
-        else
-            Print("Wrong Selection!")
-            return
-        end
+        unlock()
     else if selection == "L" or selection == "l" # Locate command
         ClearText()
-        Print("Item name:")
+        Print("######Item Locator######")
+        Print(" ")
+        Print("Type the name of the item you want to locate:")
         string thing = Input("> ")
         Locate(thing)
     else if selection == "W" or selection == "w" # Weather command
         ClearText()
+        Print("######Weather Changer######")
+        Print(" ")
         Print("Weather(Number: 0-100)")
         number rain = Input("> ")
         Weather(rain)
@@ -68,12 +62,14 @@ loop
         TimorosTeleport()
     else if selection == "S" or selection == "s" # Save room command
         ClearText()
+        Print("######Room Saver######")
         Print("Do you want to add the [C]urrent room or [M]anually input it?")
         var option = Input("> ")
         if option == "C" or option == "c"
             array room = GetCurrentRoom()
             AddRoom(room)
         else if option == "M" or option == "m"
+            ClearText()
             Print("Please enter the name of the room you would like to add")
             string manualName = Input("> ")
             if !VerifyThingExists(manualName, "room")
@@ -90,11 +86,14 @@ loop
         else
             string realName = ShowList("edit")
             if realName != ""
+                ClearText()
                 Print("Would you like to [D]elete or [C]hange the name?")
                 selection = Input("> ")
                 if selection == "D" or selection == "d"
+                    ClearText()
                     DeleteRoom(realName)
                 else if selection == "C" or selection == "c"
+                    ClearText()
                     RenameRoom(realName)
                 else
                     Print("Invalid Selection")
@@ -104,10 +103,15 @@ loop
         end
     else if selection == "C" or selection == "c" # Database reset command
         databaseReset()
+    else if selection == "M" or selection == "m" # Money hack command
+        moneycheat()
+    else if selection == "P" or selection == "p" # Player stats command
+        playerstats()
     else if selection == "Q" or selection == "q" # Quit command
         Finish()
     else
-        Print("Wrong Selection!")
+        Print("Invalid Selection!")
+        Sleep(3)
     end
 end
 
@@ -179,6 +183,8 @@ end
 # Player Teleporter
 void TimorosTeleport()
     ClearText()
+    Print("######Teleporter######")
+    Print(" ")
     Print("- [R]oom list")
     Print("- [M]anual input")
     var optionTP = Input("> ")
@@ -191,6 +197,7 @@ void TimorosTeleport()
             RoomTeleport(realName, "")
         end
     else if optionTP == "M" or optionTP == "m"
+        ClearText()
         Print("Name of the item/room you want to teleport to:")
         var name = Input("> ")
         var position = playstation.GetPosition(name)
@@ -231,6 +238,7 @@ end
 
 # Add a room to the database
 void AddRoom(array room)
+    ClearText()
     string realName = room[0]
 
     if HasIndex(Rooms, realName)
@@ -303,11 +311,23 @@ end
 # Database reset
 void databaseReset()
     ClearText()
-    Print("Clearing database...")
-    Sleep(3)
-    database.ClearMemories()
-    Print("Database Cleared...")
-    Sleep(3)
+    Print("######Database Destroyer######")
+    Print(" ")
+    Print("Are you sure you want to clear the Database?[y/n]")
+    var option2 = Input("> ")
+    if option2 == "Y" or option2 == "y"
+        Print("Clearing Database...")
+        Sleep(3)
+        database.ClearMemories()    
+        Print("Database Cleared...")
+        Sleep(3)
+    else if option2 == "N" or option2 == "n"
+            return
+    else
+        Print("Invalid Selection")
+        Sleep(3)
+        return
+    end
 end
 
 # Gets a string between the first instance of start and end (exclusive)
@@ -434,7 +454,7 @@ string GetClosestItem(string realName)
             i = 0
         end
     end
-    Print("")
+    Print(" ")
     Print("Closest item found!")
     Sleep(3)
     
@@ -477,6 +497,7 @@ end
 # Show the list of rooms
 string ShowList(string type)
     ClearText()
+    Print("######Room Editor######")
     roomNames = []
     string prompt = ""
     if type == "edit"
@@ -509,6 +530,159 @@ string ShowList(string type)
         Print("Invalid Selection")
         Sleep(3)
         return ""
+    end
+end
+
+void moneycheat()
+    ClearText()
+    Print("######Bank Exploit Tool######")
+    Print(" ")
+    Print("Money you want to add to your account")
+    number amount = Input("> ")
+    balance.ChangeBalance("Sebastian", amount)
+    ClearText()
+    Print("Balanced updated successfully!")
+    Print("Your new balance is: " + balance.GetBalanceForPerson("Sebastian"))
+    Sleep(3)
+end
+
+void playerstats()
+    ClearText()
+    var sleepiness = heart.GetNumericData("Sebastian", "sleepiness")
+    var smelliness = heart.GetNumericData("Sebastian", "smelliness")
+    var charisma = heart.GetNumericData("Sebastian", "charisma")
+    var drunkenness = heart.GetNumericData("Sebastian", "drunkenness")
+    var corruption = heart.GetNumericData("Sebastian", "corruption")
+    Print("######Player Stats###### - Select a stat to change it!")
+    Print(" ")
+    Print("- [1] Sleepiness - Current Value: " + Round(sleepiness))
+    Print("- [2] Smelliness - Current Value: " + Round(smelliness))
+    Print("- [3] Charisma - Current Value: " + Round(charisma))
+    Print("- [4] Drunkenness - Current Value: " + Round(drunkenness))
+    Print("- [5] Corruption - Current Value: " + Round(corruption))
+    Print("- [R]efill All")
+    var option = Input("> ")
+    if option == "1"
+        ClearText()
+        Print("Do you want to rest fully?[y/n]")
+        var option2 = Input("> ")
+        if option2 == "Y" or option2 == "y"
+            heart.SetNumericData("Sebastian", "sleepiness", 0)
+            Print("You are now fully rested!")
+            Sleep(3)
+        else if option2 == "N" or option2 == "n"
+            return
+        else
+            Print("Invalid Selection")
+            Sleep(3)
+            return
+        end
+    else if option == "2"
+        ClearText()
+        Print("Do you want to get rid of the smell?[y/n]")
+        var option2 = Input("> ")
+        if option2 == "Y" or option2 == "y"
+            heart.SetNumericData("Sebastian", "smelliness", 0)
+            Print("You no longer smell bad!")
+            Sleep(3)
+        else if option2 == "N" or option2 == "n"
+            return
+        else
+            Print("Invalid Selection")
+            Sleep(3)
+            return
+        end
+    else if option == "3"
+        ClearText()
+        Print("Do you want to become fully charismatic?[y/n]")
+        var option2 = Input("> ")
+        if option2 == "Y" or option2 == "y"
+            heart.SetNumericData("Sebastian", "charisma", 1000)
+            Print("Look at that charisma")
+            Sleep(3)
+        else if option2 == "N" or option2 == "n"
+            return
+        else
+            Print("Invalid Selection")
+            Sleep(3)
+            return
+        end
+    else if option == "4"
+        ClearText()
+        Print("Do you want to get rid of drunkenness?[y/n]")
+        var option2 = Input("> ")
+        if option2 == "Y" or option2 == "y"
+            heart.SetNumericData("Sebastian", "drunkenness", 0)
+            Print("You are back at your feet")
+            Sleep(3)
+        else if option2 == "N" or option2 == "n"
+            return
+        else
+            Print("Invalid Selection")
+            Sleep(3)
+            return
+        end
+    else if option == "5"
+        ClearText()
+        Print("Do you want to restore corruption?[y/n]")
+        var option2 = Input("> ")
+        if option2 == "Y" or option2 == "y"
+            heart.SetNumericData("Sebastian", "corruption", 0)
+            Print("You are no longer corrupted")
+            Sleep(3)
+        else if option2 == "N" or option2 == "n"
+            return
+        else
+            Print("Invalid Selection")
+            Sleep(3)
+            return
+        end
+    else if option == "R" or option == "r"
+        ClearText()
+        Print("Are you sure you want to refill all stats?[y/n]")
+        var option2 = Input("> ")
+        if option2 == "Y" or option2 == "y"
+            heart.SetNumericData("Sebastian", "sleepiness", 0)
+            heart.SetNumericData("Sebastian", "smelliness", 0)
+            heart.SetNumericData("Sebastian", "charisma", 1000)
+            heart.SetNumericData("Sebastian", "drunkenness", 0)
+            heart.SetNumericData("Sebastian", "corruption", 0)
+            Print("All stats have been refilled")
+            Sleep(3)
+        else if option2 == "N" or option2 == "n"
+            return
+        else
+            Print("Invalid Selection")
+            Sleep(3)
+            return
+        end
+    else
+        Print("Invalid Selection")
+        Sleep(3)
+        return
+    end
+end
+
+void unlock()
+    ClearText()
+    Print("######Room Unlocker######")
+    Print(" ")
+    Print("Do you want to [U]nlock or [L]ock a door?")
+    string select = Input("> ")
+    if select == "U" or select == "u" # Unlock command
+        ClearText()
+        Print("Door Name:")
+        string doorName = Input("> ")
+        Unlock(doorName)
+    else if select == "L" or select == "l" # Lock command
+        ClearText()
+        Print("Door Name:")
+        string doorName = Input("> ")
+        Lock(doorName)
+    else
+        Print("Invalid Selection!")
+        Sleep(3)
+        return
     end
 end
 # -------------------------------------------------
